@@ -1,11 +1,21 @@
 <script setup>
 import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { conversationUrl, frontendURL } from 'dashboard/helper/URLHelper';
 
 const props = defineProps({
   conversation: {
     type: Object,
     required: true,
+  },
+  labelId: {
+    type: [String, Number],
+    default: null,
+  },
+  index: {
+    type: Number,
+    default: null,
   },
   isDragging: {
     type: Boolean,
@@ -16,6 +26,9 @@ const props = defineProps({
 const emit = defineEmits(['dragstart', 'dragend']);
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const accountId = computed(() => route.params.accountId);
 
 const contactName = computed(() => {
   return props.conversation.meta?.contact?.name || props.conversation.meta?.sender?.name || 'Usuário anônimo';
@@ -39,11 +52,35 @@ const unreadCount = computed(() => {
 const handleDragStart = (e) => {
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', props.conversation.id);
+  if (props.labelId) {
+    e.dataTransfer.setData('kanban/fromLabelId', props.labelId);
+  }
+  if (props.index !== null && props.index !== undefined) {
+    e.dataTransfer.setData('kanban/fromIndex', props.index);
+  }
   emit('dragstart');
 };
 
 const handleDragEnd = () => {
   emit('dragend');
+};
+
+const handleCardClick = () => {
+  if (props.isDragging) {
+    return;
+  }
+  const accountIdValue = accountId.value || props.conversation.account_id;
+  if (!accountIdValue) {
+    return;
+  }
+  router.push(
+    frontendURL(
+      conversationUrl({
+        accountId: accountIdValue,
+        id: props.conversation.id,
+      })
+    )
+  );
 };
 </script>
 
@@ -52,8 +89,11 @@ const handleDragEnd = () => {
     class="bg-white dark:bg-n-solid-3 rounded-lg p-3 shadow-sm border border-n-weak hover:shadow-md transition-shadow cursor-move"
     :class="{ 'opacity-50': isDragging }"
     draggable="true"
+    role="button"
+    tabindex="0"
     @dragstart="handleDragStart"
     @dragend="handleDragEnd"
+    @click="handleCardClick"
   >
     <!-- Header com nome e unread count -->
     <div class="flex items-start justify-between mb-2">

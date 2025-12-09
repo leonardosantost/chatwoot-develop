@@ -40,13 +40,15 @@ const untaggedConversations = computed(() =>
 );
 
 const handleDrop = async (data) => {
-  const { conversationId, labelId, labelTitle } = data;
+  const { conversationId, fromLabelId, labelId, labelTitle, toIndex } = data;
 
   try {
     await store.dispatch('kanban/moveConversationToLabel', {
       conversationId,
+      fromLabelId,
       labelId,
       labelTitle,
+      toIndex,
     });
 
     showAlert({

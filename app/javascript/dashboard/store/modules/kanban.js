@@ -71,7 +71,7 @@ const actions = {
       // Buscar conversas com essa label
       const response = await kanbanService.getConversations({
         labels: [labelTitle],
-        status: 'open,pending,resolved',
+        status: 'all',
       });
 
       const conversations = response.data.payload || [];
@@ -91,7 +91,7 @@ const actions = {
   async loadUntaggedConversations({ commit }, filters = {}) {
     try {
       const response = await kanbanService.getConversations({
-        status: 'open,pending,resolved',
+        status: 'all',
         ...filters,
       });
 
@@ -109,41 +109,73 @@ const actions = {
 
   // Mover conversa para uma label (adiciona a label à conversa)
   async moveConversationToLabel(
-    { commit, state, dispatch },
-    { conversationId, labelId, labelTitle }
+    { commit, state },
+    { conversationId, fromLabelId, labelId, labelTitle, toIndex }
   ) {
     try {
       commit('setLoading', true);
 
-      // Chamar API para atualizar a label
-      await kanbanService.updateConversationLabels(conversationId, [labelId]);
-
-      // Atualizar estado local
-      // Remover de untagged se estava lá
-      const untaggedIndex = state.untaggedConversations.findIndex(
-        c => c.id === conversationId
+      const fromColumn =
+        fromLabelId === 'untagged'
+          ? state.untaggedConversations
+          : state.conversationsByLabel[fromLabelId] || [];
+      const conversationFromSource = fromColumn.find(
+        conversation => conversation.id === conversationId
       );
-      if (untaggedIndex !== -1) {
-        commit('removeFromUntagged', untaggedIndex);
+
+      const conversation =
+        conversationFromSource ||
+        state.untaggedConversations.find(
+          currentConversation => currentConversation.id === conversationId
+        ) ||
+        Object.values(state.conversationsByLabel || {})
+          .flatMap(
+            (columnConversations) => columnConversations || []
+          )
+          .find(
+            currentConversation => currentConversation.id === conversationId
+          );
+
+      if (labelId === fromLabelId && conversation) {
+        commit('moveConversation', {
+          conversation,
+          fromLabelId,
+          toLabelId: labelId,
+          toIndex,
+        });
+        commit('setLoading', false);
+        return;
       }
 
-      // Remover de outras labels
-      for (const otherLabelId in state.conversationsByLabel) {
-        const index = state.conversationsByLabel[otherLabelId].findIndex(
-          c => c.id === conversationId
+      const kanbanLabelTitles = state.kanbanLabels.map(label => label.title);
+      const preservedLabels = (conversation?.labels || []).filter(
+        label => !kanbanLabelTitles.includes(label)
+      );
+
+      const shouldAttachLabel = labelId !== 'untagged' && labelTitle;
+      const labelsToPersist = shouldAttachLabel
+        ? [...preservedLabels, labelTitle]
+        : preservedLabels;
+      const uniqueLabels = [...new Set(labelsToPersist)];
+
+      if (uniqueLabels.length > 0) {
+        await kanbanService.updateConversationLabels(
+          conversationId,
+          uniqueLabels
         );
-        if (index !== -1) {
-          commit('removeFromLabel', {
-            labelId: otherLabelId,
-            index,
-          });
-        }
+      } else {
+        await kanbanService.updateConversationLabels(conversationId, []);
       }
 
-      // Recarregar dados da nova label
-      await dispatch('loadConversationsByLabel', {
-        labelId,
-        labelTitle,
+      const updatedConversation = conversation
+        ? { ...conversation, labels: uniqueLabels }
+        : { id: conversationId, labels: uniqueLabels };
+
+      commit('moveConversation', {
+        conversation: updatedConversation,
+        fromLabelId,
+        toLabelId: labelId,
+        toIndex,
       });
 
       commit('setError', null);
@@ -244,6 +276,65 @@ const mutations = {
     if (index !== -1) {
       state.conversationsByLabel[labelId].splice(index, 1, conversation);
     }
+  },
+
+  moveConversation(state, { conversation, fromLabelId, toLabelId, toIndex }) {
+    const removeFromList = labelId => {
+      if (!labelId && labelId !== 0) {
+        return null;
+      }
+      if (labelId === 'untagged') {
+        const index = state.untaggedConversations.findIndex(
+          currentConversation => currentConversation.id === conversation.id
+        );
+        if (index !== -1) {
+          return state.untaggedConversations.splice(index, 1)[0];
+        }
+        return null;
+      }
+
+      const sourceList = state.conversationsByLabel[labelId];
+      if (!sourceList) {
+        return null;
+      }
+      const index = sourceList.findIndex(
+        currentConversation => currentConversation.id === conversation.id
+      );
+      if (index === -1) {
+        return null;
+      }
+      return sourceList.splice(index, 1)[0];
+    };
+
+    let removedConversation = removeFromList(fromLabelId);
+    if (!removedConversation) {
+      removedConversation = removeFromList('untagged');
+    }
+
+    Object.keys(state.conversationsByLabel).forEach(labelKey => {
+      if (labelKey === fromLabelId || labelKey === toLabelId) {
+        return;
+      }
+      removeFromList(labelKey);
+    });
+
+    if (toLabelId !== 'untagged') {
+      removeFromList('untagged');
+    }
+
+    const conversationToInsert = removedConversation || conversation;
+
+    const targetList =
+      toLabelId === 'untagged'
+        ? state.untaggedConversations
+        : (state.conversationsByLabel[toLabelId] =
+            state.conversationsByLabel[toLabelId] || []);
+
+    const insertionIndex = Number.isInteger(toIndex)
+      ? Math.max(0, Math.min(toIndex, targetList.length))
+      : targetList.length;
+
+    targetList.splice(insertionIndex, 0, conversationToInsert);
   },
 };
 

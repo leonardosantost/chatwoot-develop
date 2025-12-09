@@ -21,6 +21,7 @@ const { t } = useI18n();
 
 const isDragOver = ref(false);
 const draggedConversationId = ref(null);
+const dropIndex = ref(null);
 
 const conversationCount = computed(() => props.conversations.length);
 
@@ -28,33 +29,55 @@ const handleDragOver = (e) => {
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
   isDragOver.value = true;
+  dropIndex.value = props.conversations.length;
   emit('dragover', props.label.id);
 };
 
 const handleDragLeave = () => {
   isDragOver.value = false;
+  dropIndex.value = null;
 };
 
 const handleDrop = (e) => {
   e.preventDefault();
   isDragOver.value = false;
+  const targetIndex =
+    dropIndex.value === null ? props.conversations.length : dropIndex.value;
 
   const conversationId = parseInt(e.dataTransfer.getData('text/plain'));
+  const fromLabelId = e.dataTransfer.getData('kanban/fromLabelId');
+  const fromIndex = Number.parseInt(
+    e.dataTransfer.getData('kanban/fromIndex'),
+    10
+  );
+
   if (conversationId) {
     emit('drop', {
       conversationId,
+      fromLabelId: fromLabelId || undefined,
+      fromIndex: Number.isNaN(fromIndex) ? undefined : fromIndex,
+      toIndex: targetIndex,
       labelId: props.label.id,
       labelTitle: props.label.title,
     });
   }
+
+  dropIndex.value = null;
 };
 
-const handleDragStart = (conversationId) => {
+const handleDragStart = (conversationId, index) => {
   draggedConversationId.value = conversationId;
+  dropIndex.value = index;
 };
 
 const handleDragEnd = () => {
   draggedConversationId.value = null;
+  dropIndex.value = null;
+};
+
+const handleCardDragOver = (index) => {
+  dropIndex.value = index;
+  isDragOver.value = true;
 };
 </script>
 
@@ -101,12 +124,15 @@ const handleDragEnd = () => {
       <!-- Cards de conversa -->
       <template v-if="conversations.length > 0">
         <KanbanCard
-          v-for="conversation in conversations"
+          v-for="(conversation, index) in conversations"
           :key="conversation.id"
           :conversation="conversation"
+          :label-id="label.id"
+          :index="index"
           :is-dragging="draggedConversationId === conversation.id"
-          @dragstart="handleDragStart(conversation.id)"
+          @dragstart="handleDragStart(conversation.id, index)"
           @dragend="handleDragEnd"
+          @dragover.prevent="handleCardDragOver(index)"
         />
       </template>
 

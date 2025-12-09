@@ -6,10 +6,15 @@ class KanbanService extends ApiClient {
     super('conversations', { accountScoped: true });
   }
 
-  // Atualizar labels de uma conversa
-  updateConversationLabels(conversationId, labelIds) {
+  fetchLabels() {
+    const labelsClient = new ApiClient('labels', { accountScoped: true });
+    return axios.get(labelsClient.url);
+  }
+
+  // Atualizar labels de uma conversa usando títulos das labels
+  updateConversationLabels(conversationId, labels) {
     return axios.post(`${this.url}/${conversationId}/labels`, {
-      labels: labelIds,
+      labels,
     });
   }
 
