@@ -225,6 +225,13 @@ const menuItems = computed(() => {
       activeOn: ['kanban_view'],
     },
     {
+      name: 'Production Queue',
+      label: t('SIDEBAR.PRODUCTION_QUEUE'),
+      icon: 'i-lucide-list-checks',
+      to: accountScopedRoute('production_queue'),
+      activeOn: ['production_queue'],
+    },
+    {
       name: 'Captain',
       icon: 'i-woot-captain',
       label: t('SIDEBAR.CAPTAIN'),
