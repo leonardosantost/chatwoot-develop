@@ -1,32 +1,34 @@
-import ApiClient from './ApiClient';
+/* global axios */
+import ApiClient from 'dashboard/api/ApiClient';
 
-const ApiEndpoint = 'conversations';
+class KanbanService extends ApiClient {
+  constructor() {
+    super('conversations', { accountScoped: true });
+  }
 
-export default {
   // Atualizar labels de uma conversa
   updateConversationLabels(conversationId, labelIds) {
-    return ApiClient.patch(
-      `${ApiEndpoint}/${conversationId}/labels`,
-      {
-        labels: labelIds,
-      }
-    );
-  },
+    return axios.post(`${this.url}/${conversationId}/labels`, {
+      labels: labelIds,
+    });
+  }
 
   // Atualizar status de uma conversa
   updateConversationStatus(conversationId, status) {
-    return ApiClient.patch(`${ApiEndpoint}/${conversationId}`, {
-      status: status,
+    return axios.patch(`${this.url}/${conversationId}`, {
+      status,
     });
-  },
+  }
 
   // Buscar conversas de um inbox específico
   getConversationsByInbox(inboxId, params = {}) {
-    return ApiClient.get(`${ApiEndpoint}`, {
+    return axios.get(this.url, {
       params: {
         inbox_id: inboxId,
         ...params,
       },
     });
-  },
-};
+  }
+}
+
+export default new KanbanService();
