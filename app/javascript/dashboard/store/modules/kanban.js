@@ -1,5 +1,5 @@
-import { API } from 'dashboard/api';
 import kanbanService from 'dashboard/services/kanbanService';
+import LabelsAPI from 'dashboard/api/labels';
 
 const state = {
   // Mapa de conversas por label: { labelId: [conversations] }
@@ -37,7 +37,7 @@ const actions = {
     commit('setLoading', true);
     try {
       // Buscar todas as labels do Chatwoot
-      const labelsResponse = await API.get('/labels');
+      const labelsResponse = await LabelsAPI.get();
       const labels = labelsResponse.data.payload || [];
 
       // Filtrar apenas labels que podem ser usadas no kanban
@@ -69,11 +69,9 @@ const actions = {
   async loadConversationsByLabel({ commit }, { labelId, labelTitle }) {
     try {
       // Buscar conversas com essa label
-      const response = await API.get('/conversations', {
-        params: {
-          labels: [labelTitle],
-          status: 'open,pending,resolved',
-        },
+      const response = await kanbanService.getConversations({
+        labels: [labelTitle],
+        status: 'open,pending,resolved',
       });
 
       const conversations = response.data.payload || [];
@@ -92,11 +90,9 @@ const actions = {
   // Carregar conversas sem label
   async loadUntaggedConversations({ commit }, filters = {}) {
     try {
-      const response = await API.get('/conversations', {
-        params: {
-          status: 'open,pending,resolved',
-          ...filters,
-        },
+      const response = await kanbanService.getConversations({
+        status: 'open,pending,resolved',
+        ...filters,
       });
 
       const allConversations = response.data.payload || [];

@@ -20,6 +20,13 @@ class KanbanService extends ApiClient {
     });
   }
 
+  // Buscar conversas com filtros arbitrários
+  getConversations(params = {}) {
+    return axios.get(this.url, {
+      params,
+    });
+  }
+
   // Buscar conversas de um inbox específico
   getConversationsByInbox(inboxId, params = {}) {
     return axios.get(this.url, {
