@@ -1,0 +1,15 @@
+{
+  "KANBAN": {
+    "EMPTY_COLUMN": "No conversations",
+    "ERROR_LOADING_DATA": "Error loading kanban data",
+    "ERROR_MOVING_CONVERSATION": "Error moving conversation",
+    "CONVERSATION_MOVED": "Conversation moved successfully",
+    "DATA_REFRESHED": "Data refreshed",
+    "SHOW_UNTAGGED": "Show Untagged",
+    "HIDE_UNTAGGED": "Hide Untagged",
+    "UNTAGGED": "Untagged",
+    "NO_LABELS": "No labels available",
+    "CREATE_LABELS_HINT": "Create labels in settings to start using the kanban board",
+    "SUBTITLE": "Organize your conversations in columns by label"
+  }
+}
