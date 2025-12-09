@@ -371,8 +371,9 @@
       "SETTINGS": "Settings"
     },
     "CHANNELS": "Channels",
-    "SALES_FUNNEL": "Sales Funnel",
-    "PRODUCTION_QUEUE": "Production Queue",
+    "SALES_FUNNEL": "Funil de Vendas",
+    "PRODUCTION_QUEUE": "Fila de Produção",
+    "TIMELINE": "Linha do Tempo",
     "SET_AUTO_OFFLINE": {
       "TEXT": "Mark offline automatically",
       "INFO_TEXT": "Let the system automatically mark you offline when you aren't using the app or dashboard.",

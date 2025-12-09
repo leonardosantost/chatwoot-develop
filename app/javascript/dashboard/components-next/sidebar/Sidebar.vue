@@ -137,6 +137,27 @@ const menuItems = computed(() => {
       },
     },
     {
+      name: 'Sales Funnel',
+      label: t('SIDEBAR.SALES_FUNNEL'),
+      icon: 'i-lucide-trello',
+      to: accountScopedRoute('kanban_view'),
+      activeOn: ['kanban_view'],
+    },
+    {
+      name: 'Production Queue',
+      label: t('SIDEBAR.PRODUCTION_QUEUE'),
+      icon: 'i-lucide-list-checks',
+      to: accountScopedRoute('production_queue'),
+      activeOn: ['production_queue'],
+    },
+    {
+      name: 'Timeline',
+      label: t('SIDEBAR.TIMELINE'),
+      icon: 'i-lucide-clock-3',
+      to: accountScopedRoute('timeline_view'),
+      activeOn: ['timeline_view'],
+    },
+    {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',
@@ -216,20 +237,6 @@ const menuItems = computed(() => {
           })),
         },
       ],
-    },
-    {
-      name: 'Sales Funnel',
-      label: t('SIDEBAR.SALES_FUNNEL'),
-      icon: 'i-lucide-trello',
-      to: accountScopedRoute('kanban_view'),
-      activeOn: ['kanban_view'],
-    },
-    {
-      name: 'Production Queue',
-      label: t('SIDEBAR.PRODUCTION_QUEUE'),
-      icon: 'i-lucide-list-checks',
-      to: accountScopedRoute('production_queue'),
-      activeOn: ['production_queue'],
     },
     {
       name: 'Captain',

@@ -7,7 +7,7 @@ const kanbanRoutes = [
     name: 'kanban_view',
     component: KanbanView,
     meta: {
-      title: 'Kanban',
+      title: 'Funil de Vendas',
       permissions: ['administrator', 'agent', 'custom_role'],
     },
   },

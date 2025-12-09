@@ -7,7 +7,7 @@ const productionQueueRoutes = [
     name: 'production_queue',
     component: ProductionQueueView,
     meta: {
-      title: 'Production Queue',
+      title: 'Fila de Produção',
       permissions: ['administrator', 'agent', 'custom_role'],
     },
   },
