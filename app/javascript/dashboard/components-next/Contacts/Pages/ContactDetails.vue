@@ -11,6 +11,7 @@ import ContactLabels from 'dashboard/components-next/Contacts/ContactLabels/Cont
 import ContactsForm from 'dashboard/components-next/Contacts/ContactsForm/ContactsForm.vue';
 import ConfirmContactDeleteDialog from 'dashboard/components-next/Contacts/ContactsForm/ConfirmContactDeleteDialog.vue';
 import Policy from 'dashboard/components/policy.vue';
+import ContactCustomAttributes from 'dashboard/components-next/Contacts/ContactsSidebar/ContactCustomAttributes.vue';
 
 const props = defineProps({
   selectedContact: {
@@ -166,6 +167,11 @@ const handleAvatarDelete = async () => {
         :contact-data="contactData"
         is-details-view
         @update="handleFormUpdate"
+      />
+      <ContactCustomAttributes
+        v-if="selectedContact"
+        :selected-contact="selectedContact"
+        class="w-full"
       />
       <Button
         :label="t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.UPDATE_BUTTON')"

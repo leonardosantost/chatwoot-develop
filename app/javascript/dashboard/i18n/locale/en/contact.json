@@ -498,7 +498,7 @@
     },
     "SIDEBAR": {
       "TABS": {
-        "ATTRIBUTES": "Attributes",
+        "CRM": "CRM",
         "HISTORY": "History",
         "NOTES": "Notes",
         "MERGE": "Merge"

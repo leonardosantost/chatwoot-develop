@@ -12,7 +12,7 @@ import TabBar from 'dashboard/components-next/tabbar/TabBar.vue';
 import ContactNotes from 'dashboard/components-next/Contacts/ContactsSidebar/ContactNotes.vue';
 import ContactHistory from 'dashboard/components-next/Contacts/ContactsSidebar/ContactHistory.vue';
 import ContactMerge from 'dashboard/components-next/Contacts/ContactsSidebar/ContactMerge.vue';
-import ContactCustomAttributes from 'dashboard/components-next/Contacts/ContactsSidebar/ContactCustomAttributes.vue';
+import ContactCrmApp from 'dashboard/components-next/Contacts/ContactsSidebar/ContactCrmApp.vue';
 
 const store = useStore();
 const route = useRoute();
@@ -21,7 +21,7 @@ const router = useRouter();
 const contact = useMapGetter('contacts/getContactById');
 const uiFlags = useMapGetter('contacts/getUIFlags');
 
-const activeTab = ref('attributes');
+const activeTab = ref('crm');
 const contactMergeRef = ref(null);
 
 const isFetchingItem = computed(() => uiFlags.value.isFetchingItem);
@@ -37,7 +37,7 @@ const showSpinner = computed(
 const { t } = useI18n();
 
 const CONTACT_TABS_OPTIONS = [
-  { key: 'ATTRIBUTES', value: 'attributes' },
+  { key: 'CRM', value: 'crm' },
   { key: 'HISTORY', value: 'history' },
   { key: 'NOTES', value: 'notes' },
   { key: 'MERGE', value: 'merge' },
@@ -165,10 +165,7 @@ onMounted(() => {
           <Spinner />
         </div>
         <template v-else>
-          <ContactCustomAttributes
-            v-if="activeTab === 'attributes'"
-            :selected-contact="selectedContact"
-          />
+          <ContactCrmApp v-if="activeTab === 'crm'" :selected-contact="selectedContact" />
           <ContactNotes v-if="activeTab === 'notes'" />
           <ContactHistory v-if="activeTab === 'history'" />
           <ContactMerge
